@@ -1,87 +1,90 @@
-import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useState } from "react";
+import { db } from "../lib/firebase";
+import { collection, addDoc } from "firebase/firestore";
 
 export default function Signup() {
-  const [password, setPassword] = useState("");             // 1
-  const [confirmPassword, setConfirmPassword] = useState(""); // 2
-  const [error, setError] = useState("");                   // 3
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    role: "",
+  });
 
-  useEffect(() => {
-    if (password && confirmPassword && password !== confirmPassword) {
-      setError("Passwords do not match!");
-    } else {
-      setError("");
-    }
-  }, [password, confirmPassword]); // 🔐 Validate password match
+  const [userId, setUserId] = useState(null);
 
-  useEffect(() => {
-    if (password.length > 0 && password.length < 6) {
-      setError("Password must be at least 6 characters.");
-    }
-  }, [password]); // ⚠️ Password strength warning
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setError(""); // Auto-clear error after 5 seconds
-    }, 5000);
-    return () => clearTimeout(timer);
-  }, [error]); // ⏱️ Clear error after delay
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!error) console.log("Form submitted");
+
+    try {
+      const docRef = await addDoc(collection(db, "users"), formData);
+      setUserId(docRef.id);
+      alert("Signup successful!");
+    } catch (error) {
+      console.error("Error adding document: ", error);
+      alert("Signup failed!");
+    }
   };
 
   return (
-    <div className="min-h-screen bg-white text-gray-800 font-sans flex items-center justify-center p-6">
-      <form
-        className="max-w-md w-full shadow-md p-8 rounded border bg-white"
-        onSubmit={handleSubmit}
-      >
-        <h2 className="text-2xl font-semibold mb-4 text-center">Sign Up</h2>
+    <div className="p-10 bg-indigo-50 max-w-md mx-auto">
+      <h2 className="text-2xl mb-4 font-bold text-center">Signup</h2>
+      <form onSubmit={handleSubmit} className="space-y-4">
         <input
-          className="w-full p-2 mb-4 border rounded"
+          className="w-full p-2 border rounded"
           type="text"
-          placeholder="Enter your name"
+          name="name"
+          placeholder="Your Name"
+          onChange={handleChange}
           required
         />
         <input
-          className="w-full p-2 mb-4 border rounded"
+          className="w-full p-2 border rounded"
           type="email"
-          placeholder="Enter your email"
+          name="email"
+          placeholder="Email"
+          onChange={handleChange}
           required
         />
         <input
-          className="w-full p-2 mb-4 border rounded"
+          className="w-full p-2 border rounded"
           type="password"
-          placeholder="Create password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          name="password"
+          placeholder="Password"
+          onChange={handleChange}
           required
         />
-        <input
-          className="w-full p-2 mb-4 border rounded"
-          type="password"
-          placeholder="Confirm password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
+        <select
+          className="w-full p-2 border rounded"
+          name="role"
+          onChange={handleChange}
           required
-        />
-        <select className="w-full p-2 mb-4 border rounded" required>
+        >
           <option value="">Select Role</option>
           <option value="student">Student</option>
           <option value="librarian">Librarian</option>
           <option value="admin">Admin</option>
         </select>
-        {error && (
-          <p className="text-red-600 text-sm mb-4 text-center">{error}</p>
-        )}
-        <button
-          className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
-          type="submit"
-        >
-          Sign Up
+        <button className="bg-blue-600 text-white p-2 rounded w-full" type="submit">
+          Register
         </button>
       </form>
+
+      {userId && (
+        <div className="mt-4 text-green-700 text-sm">
+          🎉 User registered! Your ID: <strong>{userId}</strong>
+        </div>
+      )}
+
+      <p className="text-center text-sm mt-4">
+            Back To Home <Link href="/" className="text-blue-600 underline">Back</Link>
+      </p>
+
+
     </div>
   );
 }

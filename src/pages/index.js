@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { useState } from "react";
 
+
 import UserStatus from "../components/UserStatus";
 
 export default function Home() {
@@ -23,6 +24,7 @@ export default function Home() {
           <a href="#login-section" className="hover:underline">Login</a>
           <a href="#catalog" className="hover:underline">Catalog</a>
           <a href="#recommend" className="hover:underline">Recommendation</a>
+          <Link href="/profile" className="hover:underline">Profile</Link>
         </nav>
       </header>
 
