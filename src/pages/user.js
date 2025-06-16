@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { db } from "../firebase";
+import { auth, db } from "../lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
 
 export default function GetUserById() {
